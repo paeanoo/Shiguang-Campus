@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Serif+SC:wght@400;600&display=swap");
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  /* Custom theme colors for 拾光志 */
+  --background: #fdfbf7;
+  --foreground: #2d2a26;
+  --card: #ffffff;
+  --card-foreground: #2d2a26;
+  --popover: #ffffff;
+  --popover-foreground: #2d2a26;
+  --primary: #d97706;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f3ef;
+  --secondary-foreground: #2d2a26;
+  --muted: #f5f3ef;
+  --muted-foreground: #78756f;
+  --accent: #f5f3ef;
+  --accent-foreground: #2d2a26;
+  --destructive: #dc2626;
+  --destructive-foreground: #dc2626;
+  --border: #e8e4de;
+  --input: #e8e4de;
+  --ring: #d97706;
+  --radius: 0.75rem;
+
+  /* Custom color palette */
+  --amber-50: #fffbeb;
+  --amber-100: #fef3c7;
+  --amber-200: #fde68a;
+  --amber-300: #fcd34d;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+  --amber-700: #b45309;
+  --teal-50: #f0fdfa;
+  --teal-100: #ccfbf1;
+  --teal-200: #99f6e4;
+  --teal-300: #5eead4;
+  --teal-400: #2dd4bf;
+  --teal-500: #14b8a6;
+  --teal-600: #0d9488;
+  --teal-700: #0f766e;
+  --emerald-50: #ecfdf5;
+  --emerald-100: #d1fae5;
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+  --orange-100: #ffedd5;
+  --orange-700: #c2410c;
+  --yellow-100: #fef9c3;
+  --yellow-700: #a16207;
+  --blue-50: #eff6ff;
+  --blue-500: #3b82f6;
+  --purple-50: #faf5ff;
+  --purple-500: #a855f7;
+  --red-100: #fee2e2;
+}
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+}
