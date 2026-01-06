@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { ChevronLeft, Search, Heart } from "lucide-react"
+import { useState, useMemo, useEffect } from "react"
+import { ChevronLeft, Search, Heart, Plus, X } from "lucide-react"
 
 interface MarketplacePageProps {
   onBack: () => void
+  showPublishModal?: boolean
 }
 
 const categories = [
@@ -95,9 +96,26 @@ const products = [
   },
 ]
 
-export function MarketplacePage({ onBack }: MarketplacePageProps) {
+export function MarketplacePage({ onBack, showPublishModal: externalShowPublishModal }: MarketplacePageProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState("all")
+  const [showPublishModal, setShowPublishModal] = useState(externalShowPublishModal || false)
+  const [productForm, setProductForm] = useState({
+    title: "",
+    description: "",
+    price: "",
+    originalPrice: "",
+    category: "digital",
+    condition: "good",
+    donationPercentage: 10
+  })
+  const [isPublishing, setIsPublishing] = useState(false)
+
+  useEffect(() => {
+    if (externalShowPublishModal !== undefined) {
+      setShowPublishModal(externalShowPublishModal)
+    }
+  }, [externalShowPublishModal])
 
   const filteredProducts = useMemo(() => {
     return products
@@ -107,18 +125,28 @@ export function MarketplacePage({ onBack }: MarketplacePageProps) {
 
   return (
     <section className="max-w-5xl mx-auto px-6 py-8">
-      <div className="mb-8">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <button
+            onClick={onBack}
+            className="text-sm mb-4 flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            返回
+          </button>
+          <h1 className="text-2xl font-semibold mb-2 font-serif" style={{ color: "var(--teal-700)" }}>
+            益起·流转
+          </h1>
+          <p className="text-sm text-muted-foreground">闲置物品循环，让爱意在校园流动</p>
+        </div>
         <button
-          onClick={onBack}
-          className="text-sm mb-4 flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+          onClick={() => setShowPublishModal(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium transition-all hover:opacity-90"
+          style={{ backgroundColor: "var(--teal-600)" }}
         >
-          <ChevronLeft className="w-4 h-4" />
-          返回
+          <Plus className="w-4 h-4" />
+          发布物品
         </button>
-        <h1 className="text-2xl font-semibold mb-2 font-serif" style={{ color: "var(--teal-700)" }}>
-          益起·流转
-        </h1>
-        <p className="text-sm text-muted-foreground">闲置物品循环，让爱意在校园流动</p>
       </div>
 
       <div className="flex items-center gap-4 mb-8">
@@ -199,6 +227,161 @@ export function MarketplacePage({ onBack }: MarketplacePageProps) {
           </div>
         ))}
       </div>
+
+      {showPublishModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 backdrop-blur-sm"
+            style={{ backgroundColor: "rgba(45, 42, 38, 0.2)" }}
+            onClick={() => setShowPublishModal(false)}
+          />
+          <div
+            className="relative w-full max-w-lg mx-4 rounded-xl shadow-2xl p-6"
+            style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
+          >
+            <button
+              onClick={() => setShowPublishModal(false)}
+              className="absolute top-4 right-4 p-1 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2 font-serif text-foreground">发布闲置物品</h2>
+              <p className="text-sm text-muted-foreground">让闲置物品流转起来，传递校园温暖</p>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                setIsPublishing(true)
+                setTimeout(() => {
+                  setIsPublishing(false)
+                  setShowPublishModal(false)
+                  alert('物品发布成功！')
+                  setProductForm({
+                    title: "",
+                    description: "",
+                    price: "",
+                    originalPrice: "",
+                    category: "digital",
+                    condition: "good",
+                    donationPercentage: 10
+                  })
+                }, 1000)
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">物品标题</label>
+                <input
+                  type="text"
+                  value={productForm.title}
+                  onChange={(e) => setProductForm({ ...productForm, title: e.target.value })}
+                  placeholder="请输入物品标题"
+                  className="w-full h-11 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 px-4"
+                  style={{ backgroundColor: "var(--background)", border: "1px solid var(--border)" }}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">物品描述</label>
+                <textarea
+                  value={productForm.description}
+                  onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                  placeholder="请输入物品描述"
+                  rows="3"
+                  className="w-full rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 px-4 py-3"
+                  style={{ backgroundColor: "var(--background)", border: "1px solid var(--border)" }}
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">价格（元）</label>
+                  <input
+                    type="number"
+                    value={productForm.price}
+                    onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                    placeholder="0"
+                    className="w-full h-11 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 px-4"
+                    style={{ backgroundColor: "var(--background)", border: "1px solid var(--border)" }}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">原价（元）</label>
+                  <input
+                    type="number"
+                    value={productForm.originalPrice}
+                    onChange={(e) => setProductForm({ ...productForm, originalPrice: e.target.value })}
+                    placeholder="可选"
+                    className="w-full h-11 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 px-4"
+                    style={{ backgroundColor: "var(--background)", border: "1px solid var(--border)" }}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">物品分类</label>
+                  <select
+                    value={productForm.category}
+                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                    className="w-full h-11 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 px-4"
+                    style={{ backgroundColor: "var(--background)", border: "1px solid var(--border)" }}
+                  >
+                    <option value="digital">数码</option>
+                    <option value="books">书籍</option>
+                    <option value="clothes">服饰</option>
+                    <option value="electronics">电子产品</option>
+                    <option value="furniture">家具</option>
+                    <option value="daily">日用品</option>
+                    <option value="other">其它</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">商品成色</label>
+                  <select
+                    value={productForm.condition}
+                    onChange={(e) => setProductForm({ ...productForm, condition: e.target.value })}
+                    className="w-full h-11 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 px-4"
+                    style={{ backgroundColor: "var(--background)", border: "1px solid var(--border)" }}
+                  >
+                    <option value="brand_new">全新</option>
+                    <option value="like_new">几乎全新</option>
+                    <option value="good">良好</option>
+                    <option value="fair">一般</option>
+                    <option value="poor">较差</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">公益捐赠比例（%）</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    value={productForm.donationPercentage}
+                    onChange={(e) => setProductForm({ ...productForm, donationPercentage: parseInt(e.target.value) })}
+                    min="0"
+                    max="100"
+                    step="5"
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-medium text-foreground w-12 text-right">
+                    {productForm.donationPercentage}%
+                  </span>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={isPublishing}
+                className="w-full text-white text-sm font-medium py-3 rounded-xl transition-all hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: "var(--teal-600)" }}
+              >
+                {isPublishing ? '发布中...' : '发布物品'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

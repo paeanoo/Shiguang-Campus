@@ -585,6 +585,28 @@ const handlePublish = async () => {
           avatar: props.user.avatar_url
         }
       })
+      // 标记发布物品任务为已完成（若存在 publish_product 任务）
+      try {
+        const { data: taskRow, error: taskError } = await supabase
+          .from('tasks')
+          .select('id')
+          .eq('task_type', 'publish_product')
+          .limit(1)
+          .single()
+        if (!taskError && taskRow && taskRow.id) {
+          await supabase.rpc('complete_task', {
+            user_uuid: props.user.id,
+            task_uuid: taskRow.id
+          })
+          // 刷新任务状态与用户信息
+          await supabase.from('user_tasks').select('*').eq('user_id', props.user.id)
+          // refresh UI lists
+          loadProducts()
+          loadFavorites()
+        }
+      } catch (err) {
+        console.error('Mark publish task completed error:', err)
+      }
     }
 
     showPublishModal.value = false
