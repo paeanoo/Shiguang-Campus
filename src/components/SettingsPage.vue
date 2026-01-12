@@ -226,6 +226,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { RouterLink } from 'vue-router'
 import { ChevronLeft, User, Shield, Camera, CheckCircle, AlertCircle } from 'lucide-vue-next'
 import { supabase } from '@lib/supabase'
 import { storageService } from '@lib/storage'

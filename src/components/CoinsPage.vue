@@ -31,7 +31,7 @@
       <div class="space-y-6">
         <!-- Balance Card -->
         <div
-          class="rounded-xl p-6 relative overflow-hidden"
+          class="rounded-2xl p-6 relative overflow-hidden shadow-sm transform transition-all"
           :style="{ backgroundColor: 'var(--emerald-50)', border: '1px solid var(--border)' }"
         >
           <button
@@ -46,11 +46,15 @@
           </button>
 
           <div class="pt-4 pb-2">
-            <div class="flex items-center gap-2 mb-1">
-              <Coins class="w-7 h-7" :style="{ color: 'var(--amber-500)' }" />
+            <div class="flex items-center gap-3 mb-1">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center bg-amber-100 text-amber-600 shadow-sm">
+                <Coins class="w-6 h-6" />
+              </div>
+              <div>
               <span class="text-4xl font-bold text-foreground">{{ balance.toLocaleString() }}</span>
+                <p class="text-sm text-muted-foreground">光币余额</p>
+              </div>
             </div>
-            <p class="text-sm text-muted-foreground">光币余额</p>
             <p v-if="checkInStreak > 0" class="text-xs text-muted-foreground mt-1">连续签到 {{ checkInStreak }} 天</p>
           </div>
 
@@ -61,34 +65,37 @@
         </div>
 
         <!-- Leaderboard -->
-        <div class="rounded-xl p-5" :style="{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }">
+        <div class="rounded-2xl p-5 shadow-sm" :style="{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
               <Trophy class="w-5 h-5" :style="{ color: 'var(--amber-500)' }" />
               <h3 class="font-semibold text-foreground">减碳排行榜</h3>
             </div>
-            <button class="text-sm font-medium flex items-center gap-0.5" :style="{ color: 'var(--emerald-600)' }">
+            <button @click="openRankModal" class="text-sm font-medium flex items-center gap-0.5" :style="{ color: 'var(--emerald-600)' }">
               全部
               <ChevronRight class="w-4 h-4" />
             </button>
           </div>
           <div class="space-y-3">
             <div v-for="user in topUsers" :key="user.id" class="flex items-center gap-3">
-              <div
-                class="relative w-10 h-10 rounded-full overflow-hidden border-2"
-                :style="{ borderColor: getRankColor(user.rank) }"
-              >
-                <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover" />
+              <div class="relative">
                 <div
-                  class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                  :style="{ backgroundColor: getRankColor(user.rank) }"
-                >
-                  {{ user.rank }}
+                  :class="[
+                    'relative w-12 h-12 rounded-full overflow-hidden flex items-center justify-center',
+                    user.rank === 1 ? 'ring-2 ring-yellow-400' : user.rank === 2 ? 'ring-2 ring-gray-300' : user.rank === 3 ? 'ring-2 ring-orange-400' : 'ring-0'
+                  ]"
+              >
+                  <img @click="openUserProfileModal(user.id)" :src="user.avatar" :alt="user.name" class="w-full h-full object-cover rounded-full cursor-pointer" />
+                </div>
+                <div class="absolute -bottom-1 -right-1 bg-white rounded-full text-xs px-1 py-0.5 shadow-sm">
+                  <span v-if="user.rank === 1">🥇</span>
+                  <span v-else-if="user.rank === 2">🥈</span>
+                  <span v-else-if="user.rank === 3">🥉</span>
                 </div>
               </div>
               <div class="flex-1">
-                <span class="text-sm font-medium text-foreground">{{ user.name }}</span>
-                <div class="text-xs" :style="{ color: 'var(--emerald-600)' }">{{ user.carbon }}kg</div>
+                <span @click="openUserProfileModal(user.id)" class="text-sm font-medium text-foreground cursor-pointer">{{ user.name }}</span>
+                <div class="text-xs text-emerald-600">{{ user.carbon }}kg</div>
               </div>
             </div>
           </div>
@@ -345,10 +352,34 @@
       </div>
     </div>
   </section>
+  <!-- Rank Modal -->
+  <teleport to="body">
+    <div v-if="showRankModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+      <div class="bg-white rounded-2xl shadow-xl max-w-3xl w-full p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">减碳排行榜（前50名）</h3>
+          <button @click="showRankModal = false" class="text-sm text-muted-foreground">关闭</button>
+        </div>
+        <div class="grid grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto">
+          <div v-for="user in topUsers" :key="user.id" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer" @click="openUserProfileModal(user.id)">
+            <img :src="user.avatar" class="w-12 h-12 rounded-full object-cover" />
+            <div class="flex-1">
+              <div class="font-medium">{{ user.name }}</div>
+              <div class="text-xs text-emerald-600">{{ user.carbon }}kg</div>
+            </div>
+            <div class="text-sm text-gray-500">#{{ user.rank }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </teleport>
+
+  <!-- UserProfile handled globally via UserProfileModal in App.vue -->
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import {
   Leaf,
   Coins,
@@ -370,6 +401,7 @@ import {
   Download
 } from 'lucide-vue-next'
 import { supabase } from '@lib/supabase'
+import { openUserProfileModal } from '@/stores/userProfileModal'
 
 const props = defineProps({
   user: {
@@ -393,6 +425,10 @@ const topUsers = ref([])
 const redemptionRecords = ref([])
 const showRedemptionModal = ref(false)
 const currentRedemption = ref(null)
+const showRankModal = ref(false)
+const selectedProfile = ref(null)
+const showUserProfileModal = ref(false)
+const router = useRouter()
 
 // 加载用户数据
 const loadUserData = async () => {
@@ -431,6 +467,8 @@ const loadTasks = async () => {
     if (tasksError) throw tasksError
 
     if (props.user) {
+      // ensure latest user profile data (last check-in) is available before mapping tasks
+      await loadUserData()
       const { data: userTasks, error: userTasksError } = await supabase
         .from('user_tasks')
         .select('*')
@@ -438,10 +476,47 @@ const loadTasks = async () => {
 
       if (userTasksError) throw userTasksError
 
-      tasks.value = tasksData.map(task => ({
-        ...task,
-        user_task: userTasks.find(ut => ut.task_id === task.id)
-      }))
+      const today = new Date().toISOString().split('T')[0]
+      tasks.value = tasksData.map(task => {
+        // collect all user_task records for this task (history), pick latest
+        const uts = (userTasks || []).filter(u => u.task_id === task.id)
+        uts.sort((a, b) => {
+          const ta = a.completed_at || a.updated_at || a.created_at || ''
+          const tb = b.completed_at || b.updated_at || b.created_at || ''
+          return tb.localeCompare(ta)
+        })
+        const latest = uts.length ? uts[0] : null
+
+        // determine if latest completion happened today
+        let isDoneToday = false
+        if (latest) {
+          const lastTs = latest.completed_at || latest.updated_at || latest.created_at
+          const lastDateOnly = lastTs ? String(lastTs).split('T')[0] : null
+          if (lastDateOnly === today) isDoneToday = true
+        }
+
+        // For daily tasks (check_in / publish_product / share / join_event), treat as done only if done today.
+        if (['check_in', 'publish_product', 'share', 'join_event'].includes(task.task_type)) {
+          // Special-case: if this is the check_in task, also check the profile's last_check_in_date as a fallback
+          if (task.task_type === 'check_in') {
+            const profileLast = lastCheckInDate.value || null
+            if (profileLast === today) {
+              // synthesize a completed/claimed user_task for today's check-in if server-side user_tasks record is missing
+              const synthetic = latest ? { ...latest } : { user_id: props.user.id, task_id: task.id, status: 'completed', progress: task.requirements?.count || 1, completed_at: new Date().toISOString(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+              return { ...task, user_task: { ...synthetic, status: 'claimed', progress: synthetic?.progress || task.requirements?.count || 1 } }
+            }
+          }
+          if (isDoneToday) {
+            return { ...task, user_task: { ...latest, status: 'claimed', progress: latest?.progress || task.requirements?.count || 1 } }
+          } else {
+            // not done today -> allow completing again (do not mark as claimed)
+            return { ...task, user_task: null }
+          }
+        }
+
+        // default: surface the latest user_task record if exists
+        return { ...task, user_task: latest || null }
+      })
     } else {
       tasks.value = tasksData
     }
@@ -524,6 +599,52 @@ const loadLeaderboard = async () => {
   }
 }
 
+const openRankModal = async () => {
+  try {
+    showRankModal.value = true
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, username, avatar_url, carbon_reduced, coins, check_in_streak')
+      .order('carbon_reduced', { ascending: false })
+      .limit(50)
+    if (error) throw error
+    topUsers.value = (data || []).map((user, index) => ({
+      id: user.id,
+      name: user.username || '未知用户',
+      avatar: user.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default',
+      carbon: user.carbon_reduced || 0,
+      coins: user.coins || 0,
+      check_in_streak: user.check_in_streak || 0,
+      rank: index + 1
+    }))
+  } catch (e) {
+    console.error('Open rank modal error', e)
+  }
+}
+
+const openUserProfile = async (user) => {
+  try {
+    const uid = user.id
+    if (!uid) return
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, username, nickname, avatar_url, coins, carbon_reduced, check_in_streak')
+      .eq('id', uid)
+      .single()
+    if (error) throw error
+    selectedProfile.value = data || null
+    showUserProfileModal.value = true
+  } catch (e) {
+    console.error('Open user profile failed', e)
+  }
+}
+
+const startChatWithUser = (user) => {
+  if (!user || !user.id) return
+  // navigate to message center with userId in query so MessageCenter can open conversation
+  router.push({ path: '/messages', query: { userId: String(user.id) } })
+}
+
 // 加载兑换记录
 const loadRedemptionRecords = async () => {
   if (!props.user) return
@@ -574,7 +695,9 @@ const handleCheckIn = async () => {
       }
 
       lastCheckInDate.value = newLastCheckInDate
-      loadUserData()
+      await loadUserData()
+      // reload tasks so UI reflects the check-in task completed state
+      await loadTasks()
     } else {
       alert(data.message || '签到失败')
     }
@@ -684,7 +807,7 @@ const handleRedeemGift = async (gift) => {
     return
   }
 
-    try {
+  try {
     const { data, error } = await supabase.rpc('redeem_gift', {
       user_uuid: props.user.id,
       gift_id: typeof gift.id === 'string' && /^\d+$/.test(gift.id) ? Number(gift.id) : gift.id
@@ -787,12 +910,32 @@ const getRankColor = (rank) => {
   return 'var(--amber-700)'
 }
 
-onMounted(() => {
-  loadUserData()
-  loadTasks()
-  loadGifts()
-  loadLeaderboard()
-  loadRedemptionRecords()
+onMounted(async () => {
+  await loadUserData()
+  await loadTasks()
+  await loadGifts()
+  await loadLeaderboard()
+  await loadRedemptionRecords()
+})
+
+// 自动在日期变化时刷新任务（支持在不刷新页面的情况下每天重置任务显示）
+let _lastDate = new Date().toISOString().split('T')[0]
+let _dateCheckTimer = null
+_dateCheckTimer = setInterval(async () => {
+  try {
+    const today = new Date().toISOString().split('T')[0]
+    if (today !== _lastDate) {
+      _lastDate = today
+      await loadUserData()
+      await loadTasks()
+    }
+  } catch (e) {
+    console.warn('Daily task refresh failed', e)
+  }
+}, 60 * 1000) // 每分钟检查一次日期变化
+
+onBeforeUnmount(() => {
+  if (_dateCheckTimer) clearInterval(_dateCheckTimer)
 })
 
 // 如果父组件稍后传入 user（刷新后异步恢复 auth），监视并重新加载数据

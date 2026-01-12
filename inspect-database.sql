@@ -148,4 +148,18 @@ ORDER BY tablename, attname;
 -- ORDER BY created_at DESC
 -- LIMIT 20;
 
+-- -- 查看 buddy_requests 表数据 (检查是否存在)
+-- SELECT id, creator_id, title, description, tags, max_members, joined_count,
+--        slots_total, current_slots, created_at
+-- FROM buddy_requests
+-- ORDER BY created_at DESC
+-- LIMIT 20;
+
+-- -- 查看 partner_requests 表数据 (检查是否存在)
+-- SELECT id, creator_id, title, description, tags, max_slots, current_slots,
+--        related_event_id, created_at
+-- FROM partner_requests
+-- ORDER BY created_at DESC
+-- LIMIT 20;
+
 

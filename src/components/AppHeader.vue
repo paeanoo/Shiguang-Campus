@@ -68,6 +68,14 @@
                     <Heart class="w-4 h-4" />
                     收藏中心
                   </router-link>
+                  <router-link
+                    to="/messages"
+                    @click="showDropdown = false"
+                    class="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors"
+                  >
+                    <MessageCircle class="w-4 h-4" />
+                    消息中心
+                  </router-link>
                   <button
                     @click="handleLogout"
                     class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -102,7 +110,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { LogOut, User, Heart } from 'lucide-vue-next'
+import { RouterLink } from 'vue-router'
+import { LogOut, User, Heart, MessageCircle } from 'lucide-vue-next'
 
 const props = defineProps({
   user: {

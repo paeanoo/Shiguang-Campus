@@ -19,6 +19,8 @@
     <main class="pt-16">
       <router-view :user="currentUser" @user-updated="loadCurrentUser" @open-login="openLogin" />
     </main>
+    <GlobalChatOverlay />
+    <UserProfileModal :show="userProfileModalState.show" :user="userProfileModalState.user" :currentUser="currentUser" @close="closeUserProfileModal" />
   </div>
 </template>
 
@@ -27,6 +29,9 @@ import { ref, onMounted } from 'vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AuthModal from '@/components/AuthModal.vue'
 import { authService } from '@lib/auth'
+import GlobalChatOverlay from '@/components/GlobalChatOverlay.vue'
+import UserProfileModal from '@/components/UserProfileModal.vue'
+import { userProfileModalState, closeUserProfileModal } from '@/stores/userProfileModal'
 
 const authModalOpen = ref(false)
 const authMode = ref('login')

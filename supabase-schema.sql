@@ -160,6 +160,114 @@ ALTER TABLE IF EXISTS public.coin_transactions
 ALTER TABLE IF EXISTS public.coin_transactions
   ADD CONSTRAINT coin_transactions_type_check CHECK (type IN ('check_in','task_reward','gift_redeem','redeem','admin_adjust'));
 
+-- =========================
+-- 搭子广场（plaza）表与函数
+-- =========================
+
+-- 广场帖子表
+CREATE TABLE IF NOT EXISTS plaza_posts (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  title VARCHAR(255),
+  content TEXT,
+  tags JSONB DEFAULT '[]'::jsonb,
+  images TEXT[] DEFAULT ARRAY[]::text[],
+  likes INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 帖子评论表
+CREATE TABLE IF NOT EXISTS plaza_comments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  post_id UUID REFERENCES plaza_posts(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 索引
+CREATE INDEX IF NOT EXISTS idx_plaza_posts_created_at ON plaza_posts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_plaza_comments_post_id ON plaza_comments(post_id);
+
+-- RPC: 创建帖子
+CREATE OR REPLACE FUNCTION public.create_plaza_post(author_uuid UUID, p_title TEXT, p_content TEXT, p_tags JSONB DEFAULT '[]'::jsonb, p_images TEXT[] DEFAULT ARRAY[]::text[])
+RETURNS JSON LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_id UUID;
+BEGIN
+  INSERT INTO public.plaza_posts (user_id, title, content, tags, images)
+  VALUES (author_uuid, p_title, p_content, COALESCE(p_tags, '[]'::jsonb), COALESCE(p_images, ARRAY[]::text[]))
+  RETURNING id INTO v_id;
+
+  RETURN json_build_object('success', true, 'post_id', v_id);
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object('success', false, 'message', SQLERRM);
+END;
+$$;
+
+-- RPC: 列出帖子（分页）
+CREATE OR REPLACE FUNCTION public.list_plaza_posts(page INTEGER DEFAULT 1, page_size INTEGER DEFAULT 20)
+RETURNS TABLE(id UUID, user_id UUID, title TEXT, content TEXT, tags JSONB, images TEXT[], likes INTEGER, created_at TIMESTAMP WITH TIME ZONE, updated_at TIMESTAMP WITH TIME ZONE) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    p.id::uuid,
+    p.user_id::uuid,
+    p.title::text,
+    p.content::text,
+    p.tags::jsonb,
+    p.images::text[],
+    p.likes::integer,
+    p.created_at::timestamp with time zone,
+    p.updated_at::timestamp with time zone
+  FROM public.plaza_posts p
+  ORDER BY p.created_at DESC
+  OFFSET ((COALESCE(page,1)-1) * COALESCE(page_size,20))
+  LIMIT COALESCE(page_size,20);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- RPC: 创建评论
+CREATE OR REPLACE FUNCTION public.create_plaza_comment(author_uuid UUID, p_post_id UUID, p_content TEXT)
+RETURNS JSON LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_id UUID;
+BEGIN
+  INSERT INTO public.plaza_comments (post_id, user_id, content)
+  VALUES (p_post_id, author_uuid, p_content)
+  RETURNING id INTO v_id;
+
+  RETURN json_build_object('success', true, 'comment_id', v_id);
+EXCEPTION WHEN OTHERS THEN
+  RETURN json_build_object('success', false, 'message', SQLERRM);
+END;
+$$;
+
+-- RPC: 列出某帖子评论
+CREATE OR REPLACE FUNCTION public.list_plaza_comments(p_post_id UUID)
+RETURNS TABLE(id UUID, post_id UUID, user_id UUID, content TEXT, created_at TIMESTAMP WITH TIME ZONE) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT id, post_id, user_id, content, created_at
+  FROM public.plaza_comments
+  WHERE post_id = p_post_id
+  ORDER BY created_at ASC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- RLS 策略：允许公开读取帖子与评论；用户可插入自己的帖子/评论
+ALTER TABLE plaza_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE plaza_comments ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Plaza posts are readable" ON plaza_posts FOR SELECT USING (true);
+CREATE POLICY "Plaza posts insert by owner" ON plaza_posts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Plaza posts manage by owner" ON plaza_posts FOR UPDATE, DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "Plaza comments are readable" ON plaza_comments FOR SELECT USING (true);
+CREATE POLICY "Plaza comments insert by owner" ON plaza_comments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Plaza comments manage by owner" ON plaza_comments FOR UPDATE, DELETE USING (auth.uid() = user_id);
+
 -- 插入默认任务数据
 INSERT INTO tasks (title, description, reward_coins, reward_carbon, task_type, requirements) VALUES
 ('每日签到', '连续签到7天额外奖励', 10, 0.1, 'check_in', '{"streak_required": 1}'),
@@ -486,7 +594,7 @@ CREATE POLICY "Users can create redemptions" ON gift_redemptions FOR INSERT WITH
 -- 交易记录策略 - 用户只能看到自己的记录
 CREATE POLICY "Users can view own transactions" ON coin_transactions FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "System can create transactions" ON coin_transactions FOR INSERT WITH CHECK (true);
- 
+
 -- 9. 兼容旧/反向参数顺序的函数重载（解决 schema cache 中可能的签名不匹配）
 -- 如果某些客户端/代理以 (task_uuid, user_uuid) 的顺序调用 RPC，会导致找不到函数，添加一个重载来桥接两个顺序。
 CREATE OR REPLACE FUNCTION complete_task(task_uuid UUID, user_uuid UUID)

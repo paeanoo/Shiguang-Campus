@@ -435,7 +435,7 @@ CREATE POLICY "Users can create redemptions" ON gift_redemptions FOR INSERT WITH
 
 CREATE POLICY "Users can view own transactions" ON coin_transactions FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "System can create transactions" ON coin_transactions FOR INSERT WITH CHECK (true);
- 
+
 -- 9. 兼容旧/反向参数顺序的函数重载（解决 schema cache 中可能的签名不匹配）
 -- 如果某些客户端/代理以 (task_uuid, user_uuid) 的顺序调用 RPC，会导致找不到函数，添加一个重载来桥接两个顺序。
 CREATE OR REPLACE FUNCTION complete_task(task_uuid UUID, user_uuid UUID)

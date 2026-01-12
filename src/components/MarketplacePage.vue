@@ -104,7 +104,10 @@
             </span>
           </div>
           <div class="flex items-center justify-between pt-3" :style="{ borderTop: '1px solid var(--border)' }">
-            <div class="flex items-center gap-2">
+            <div 
+              class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+              @click.stop="openUserProfileModal(product.publisher.id)"
+            >
               <img
                 :src="product.publisher.avatar"
                 :alt="product.publisher.name"
@@ -335,7 +338,11 @@
           <div class="text-xs text-muted-foreground mb-6">
             <p>发布时间：{{ formatDate(selectedProduct.created_at) }}</p>
           </div>
-          <div class="flex items-center gap-3 mb-6 pb-4" :style="{ borderBottom: '1px solid var(--border)' }">
+          <div 
+            class="flex items-center gap-3 mb-6 pb-4 cursor-pointer hover:opacity-80 transition-opacity"
+            :style="{ borderBottom: '1px solid var(--border)' }"
+            @click="openUserProfileModal(selectedProduct.publisher.id)"
+          >
             <img
               :src="selectedProduct.publisher.avatar"
               :alt="selectedProduct.publisher.name"
@@ -365,25 +372,23 @@
               <Trash2 class="w-4 h-4" />
               删除
             </button>
-            <button
-              v-if="user && user.id !== selectedProduct.seller_id"
-              class="flex-1 h-11 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90"
-              :style="{ backgroundColor: 'var(--teal-600)' }"
-            >
-              联系卖家
-            </button>
           </div>
         </div>
       </div>
     </div>
+
+    <UserProfileModal />
   </section>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { ChevronLeft, Search, Heart, Plus, X, Upload, Edit, Trash2 } from 'lucide-vue-next'
 import { supabase } from '@lib/supabase'
 import { storageService } from '@lib/storage'
+import UserProfileModal from './UserProfileModal.vue'
+import { openUserProfileModal } from '@/stores/userProfileModal'
 
 const props = defineProps({
   user: {
@@ -417,7 +422,7 @@ const loadProducts = async () => {
   try {
     const { data, error } = await supabase
       .from('products')
-      .select('*, profiles(username, avatar_url)')
+      .select('*, profiles(id, username, nickname, avatar_url)')
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -428,7 +433,9 @@ const loadProducts = async () => {
       donationPercentage: product.donation_percentage || 0,
       originalPrice: product.original_price,
       publisher: {
-        name: product.profiles?.username || (product.profiles?.email ? product.profiles.email.split('@')[0] : '未知用户'),
+        id: product.profiles?.id,
+        name: product.profiles?.nickname || product.profiles?.username || (product.profiles?.email ? product.profiles.email.split('@')[0] : '未知用户'),
+        username: product.profiles?.username,
         avatar: product.profiles?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
       }
     }))

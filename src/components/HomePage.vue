@@ -13,8 +13,8 @@
       <!-- 拾光·活动 Card -->
       <router-link to="/activities" class="group text-left block">
         <div
-          class="h-full rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg"
-          :style="{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }"
+          class="h-full rounded-2xl overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-gradient-to-br from-white to-emerald-50 border border-transparent"
+          :style="{ borderColor: 'var(--border)' }"
         >
           <div
             class="aspect-[4/3] flex items-center justify-center relative overflow-hidden"
@@ -28,16 +28,16 @@
               }"
             />
             <div class="relative">
-              <div class="w-16 h-16 rounded-xl shadow-sm flex items-center justify-center bg-white">
-                <Calendar class="w-8 h-8" :style="{ color: 'var(--amber-600)' }" />
+              <div class="w-18 h-18 rounded-full shadow-sm flex items-center justify-center bg-amber-100 text-amber-600 p-3">
+                <Calendar class="w-9 h-9" />
               </div>
             </div>
           </div>
           <div class="p-5">
-            <h2 class="text-lg font-semibold mb-2 font-serif" :style="{ color: 'var(--amber-700)' }">
+            <h2 class="text-lg font-bold mb-2 font-serif text-gray-800">
               拾光·活动
             </h2>
-            <p class="text-sm mb-3 leading-relaxed text-muted-foreground">
+            <p class="text-sm mb-3 leading-relaxed text-gray-500">
               发现身边的讲座、演出与赛事。
             </p>
             <div class="flex items-center text-sm font-medium transition-all" :style="{ color: 'var(--amber-600)' }">
@@ -51,8 +51,8 @@
       <!-- 益起·流转 Card -->
       <router-link to="/marketplace" class="group text-left block">
         <div
-          class="h-full rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg"
-          :style="{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }"
+          class="h-full rounded-2xl overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-gradient-to-br from-white to-emerald-50 border border-transparent"
+          :style="{ borderColor: 'var(--border)' }"
         >
           <div
             class="aspect-[4/3] flex items-center justify-center relative overflow-hidden"
@@ -67,16 +67,16 @@
               }"
             />
             <div class="relative">
-              <div class="w-16 h-16 rounded-xl shadow-sm flex items-center justify-center bg-white">
-                <Gift class="w-8 h-8" :style="{ color: 'var(--teal-600)' }" />
+              <div class="w-18 h-18 rounded-full shadow-sm flex items-center justify-center bg-teal-100 text-teal-600 p-3">
+                <Gift class="w-9 h-9" />
               </div>
             </div>
           </div>
           <div class="p-5">
-            <h2 class="text-lg font-semibold mb-2 font-serif" :style="{ color: 'var(--teal-700)' }">
+            <h2 class="text-lg font-bold mb-2 font-serif text-gray-800">
               益起·流转
             </h2>
-            <p class="text-sm mb-3 leading-relaxed text-muted-foreground">
+            <p class="text-sm mb-3 leading-relaxed text-gray-500">
               闲置物品循环，让爱意在校园流动。
             </p>
             <div class="flex items-center text-sm font-medium transition-all" :style="{ color: 'var(--teal-600)' }">
@@ -90,8 +90,8 @@
       <!-- 光币中心 Card -->
       <router-link to="/coins" class="group text-left block">
         <div
-          class="h-full rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg"
-          :style="{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }"
+          class="h-full rounded-2xl overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-gradient-to-br from-white to-emerald-50 border border-transparent"
+          :style="{ borderColor: 'var(--border)' }"
         >
           <div
             class="aspect-[4/3] flex items-center justify-center relative overflow-hidden"
@@ -105,16 +105,16 @@
               }"
             />
             <div class="relative">
-              <div class="w-16 h-16 rounded-xl shadow-sm flex items-center justify-center bg-white">
-                <Coins class="w-8 h-8" :style="{ color: 'var(--emerald-600)' }" />
+              <div class="w-18 h-18 rounded-full shadow-sm flex items-center justify-center bg-emerald-100 text-emerald-600 p-3">
+                <Coins class="w-9 h-9" />
               </div>
             </div>
           </div>
           <div class="p-5">
-            <h2 class="text-lg font-semibold mb-2 font-serif" :style="{ color: 'var(--emerald-600)' }">
+            <h2 class="text-lg font-bold mb-2 font-serif text-gray-800">
               光币中心
             </h2>
-            <p class="text-sm mb-3 leading-relaxed text-muted-foreground">
+            <p class="text-sm mb-3 leading-relaxed text-gray-500">
               赚取光币，兑换好礼，记录减碳足迹。
             </p>
             <div class="flex items-center text-sm font-medium transition-all" :style="{ color: 'var(--emerald-600)' }">
@@ -128,8 +128,8 @@
       <!-- 搭子广场 Card -->
       <router-link to="/buddy" class="group text-left block">
         <div
-          class="h-full rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg"
-          :style="{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }"
+          class="h-full rounded-2xl overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-gradient-to-br from-white to-emerald-50 border border-transparent"
+          :style="{ borderColor: 'var(--border)' }"
         >
           <div
             class="aspect-[4/3] flex items-center justify-center relative overflow-hidden"
@@ -143,16 +143,16 @@
               }"
             />
             <div class="relative">
-              <div class="w-16 h-16 rounded-xl shadow-sm flex items-center justify-center bg-white">
-                <Users class="w-8 h-8" :style="{ color: 'var(--blue-500)' }" />
+              <div class="w-18 h-18 rounded-full shadow-sm flex items-center justify-center bg-blue-100 text-blue-600 p-3">
+                <Users class="w-9 h-9" />
               </div>
             </div>
           </div>
           <div class="p-5">
-            <h2 class="text-lg font-semibold mb-2 font-serif" style="color: #1d4ed8">
+            <h2 class="text-lg font-bold mb-2 font-serif text-gray-800">
               搭子广场
             </h2>
-            <p class="text-sm mb-3 leading-relaxed text-muted-foreground">
+            <p class="text-sm mb-3 leading-relaxed text-gray-500">
               找个伴一起学习、运动、看演出。
             </p>
             <div class="flex items-center text-sm font-medium transition-all" :style="{ color: 'var(--blue-500)' }">
@@ -167,5 +167,6 @@
 </template>
 
 <script setup>
+import { RouterLink } from 'vue-router'
 import { Calendar, Gift, Coins, Users, ChevronRight } from 'lucide-vue-next'
 </script>

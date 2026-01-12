@@ -601,7 +601,7 @@ export function CoinsPage({ onBack, onNavigate, user }: CoinsPageProps) {
             </button>
 
             <div className="pt-4 pb-2">
-                <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1">
                 <Coins className="w-7 h-7" style={{ color: "var(--amber-500)" }} />
                 <span className="text-4xl font-bold text-foreground">{balance.toLocaleString()}</span>
               </div>
@@ -756,22 +756,22 @@ export function CoinsPage({ onBack, onNavigate, user }: CoinsPageProps) {
                         if (status === 'claimed') {
                           return (
                             <div className="flex items-center gap-1 text-sm font-medium" style={{ color: "var(--emerald-600)" }}>
-                              <CheckCircle className="w-4 h-4" />
+                          <CheckCircle className="w-4 h-4" />
                               已领取
-                            </div>
+                        </div>
                           )
                         } else if (status === 'completed') {
                           return (
-                            <button
-                              onClick={() => handleClaimTask(task)}
-                              className="text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:opacity-90"
-                              style={{
-                                backgroundColor: "var(--emerald-500)",
-                                color: "white",
-                              }}
-                            >
-                              领取
-                            </button>
+                        <button
+                          onClick={() => handleClaimTask(task)}
+                          className="text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:opacity-90"
+                          style={{
+                            backgroundColor: "var(--emerald-500)",
+                            color: "white",
+                          }}
+                        >
+                          领取
+                        </button>
                           )
                         } else if (status === 'in_progress') {
                           return (
@@ -779,17 +779,17 @@ export function CoinsPage({ onBack, onNavigate, user }: CoinsPageProps) {
                           )
                         } else {
                           return (
-                            <button
-                              onClick={() => handleCompleteTask(task)}
-                              className="text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:opacity-90"
-                              style={{
-                                border: "1px solid var(--emerald-500)",
-                                color: "var(--emerald-600)",
-                                backgroundColor: "transparent",
-                              }}
-                            >
-                              去完成
-                            </button>
+                        <button
+                          onClick={() => handleCompleteTask(task)}
+                          className="text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:opacity-90"
+                          style={{
+                            border: "1px solid var(--emerald-500)",
+                            color: "var(--emerald-600)",
+                            backgroundColor: "transparent",
+                          }}
+                        >
+                          去完成
+                        </button>
                           )
                         }
                       })()}
@@ -957,7 +957,7 @@ export function CoinsPage({ onBack, onNavigate, user }: CoinsPageProps) {
                     if (!code) return
                     if (navigator && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
                       navigator.clipboard.writeText(code).then(() => {
-                        alert('兑换码已复制到剪贴板')
+                  alert('兑换码已复制到剪贴板')
                       }).catch(() => {
                         const ta = document.createElement('textarea')
                         ta.value = code

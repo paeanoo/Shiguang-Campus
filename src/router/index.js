@@ -43,6 +43,11 @@ const routes = [
     name: "settings",
     component: SettingsPage,
   },
+  {
+    path: "/messages",
+    name: "messages",
+    component: () => import('@/views/MessageCenter.vue')
+  },
 ]
 
 const router = createRouter({
