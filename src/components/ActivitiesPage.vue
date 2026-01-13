@@ -1171,6 +1171,25 @@ const performSimpleRegistration = async (event) => {
     event.isRegistered = true
     showEventDetailModal.value = false
     alert('报名成功！')
+
+    // 自动完成"参加活动"任务
+    try {
+      const { data: taskRow, error: taskError } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('task_type', 'join_event')
+        .limit(1)
+        .single()
+      if (!taskError && taskRow && taskRow.id) {
+        await supabase.rpc('complete_task', {
+          user_uuid: props.user.id,
+          task_uuid: taskRow.id
+        })
+      }
+    } catch (err) {
+      console.error('Mark join event task completed error:', err)
+    }
+
     // refresh participant list if current viewer is the organizer
     if (selectedEvent.value?.id && props.user && props.user.id === (selectedEvent.value.organizerId ?? selectedEvent.value.organizer_id)) {
       await fetchParticipantList(selectedEvent.value.id)
@@ -1230,6 +1249,24 @@ const submitIdentityRegistration = async () => {
     selectedEvent.value.isRegistered = true
     showIdentityModal.value = false
     showEventDetailModal.value = false
+
+    // 自动完成"参加活动"任务
+    try {
+      const { data: taskRow, error: taskError } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('task_type', 'join_event')
+        .limit(1)
+        .single()
+      if (!taskError && taskRow && taskRow.id) {
+        await supabase.rpc('complete_task', {
+          user_uuid: props.user.id,
+          task_uuid: taskRow.id
+        })
+      }
+    } catch (err) {
+      console.error('Mark join event task completed error:', err)
+    }
 
     // Reset form
     identityForm.value = {

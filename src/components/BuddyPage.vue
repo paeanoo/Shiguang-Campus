@@ -942,6 +942,24 @@ const handleJoin = async (requestId) => {
         } catch (msgErr) {
           console.warn('create room message exception', msgErr)
         }
+
+        // 自动完成"参加活动"任务（搭子也属于活动）
+        try {
+          const { data: taskRow, error: taskError } = await supabase
+            .from('tasks')
+            .select('id')
+            .eq('task_type', 'join_event')
+            .limit(1)
+            .single()
+          if (!taskError && taskRow && taskRow.id) {
+            await supabase.rpc('complete_task', {
+              user_uuid: user.id,
+              task_uuid: taskRow.id
+            })
+          }
+        } catch (err) {
+          console.error('Mark join event task completed error:', err)
+        }
       }
     } catch (e) {
       // ignore if membership table doesn't exist
